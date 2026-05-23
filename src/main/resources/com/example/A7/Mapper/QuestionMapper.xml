@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.QuestionMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.QuestionDO">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="studentId" column="student_id" />
+        <result property="courseId" column="course_id" />
+        <result property="chapterId" column="chapter_id" />
+        <result property="createTime" column="create_time" />
+        <result property="status" column="status" />
+        <result property="useAi" column="use_ai" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, title, content, student_id, course_id, chapter_id, create_time, status, use_ai
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.QuestionDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO question (
+            title, content, student_id, course_id, chapter_id, create_time, status, use_ai
+        ) VALUES (
+            #{title}, #{content}, #{studentId}, #{courseId}, #{chapterId}, now(), #{status}, #{useAi}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.QuestionDO">
+        UPDATE question
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="chapterId != null">chapter_id = #{chapterId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="useAi != null">use_ai = #{useAi},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus">
+        UPDATE question SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据学生ID查询 -->
+    <select id="findByStudentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE student_id = #{studentId}
+    </select>
+    
+    <!-- 根据课程ID查询 -->
+    <select id="findByCourseId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE course_id = #{courseId}
+    </select>
+    
+    <!-- 根据章节ID查询 -->
+    <select id="findByChapterId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE chapter_id = #{chapterId}
+    </select>
+    
+    <!-- 根据状态查询 -->
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE status = #{status}
+    </select>
+    
+    <!-- 根据标题查询 -->
+    <select id="findByTitle" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        WHERE title LIKE CONCAT('%', #{title}, '%')
+    </select>
+
+    <!-- 查询所有问题 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+    </select>
+    
+    <!-- 分页查询问题 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM question
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 统计问题总数 -->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(1) FROM question
+    </select>
+
+    <!-- 删除问题 -->
+    <delete id="delete">
+        DELETE FROM question WHERE id = #{id}
+    </delete>
+</mapper> 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.AnswerMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.AnswerDO">
+        <id property="id" column="id" />
+        <result property="questionId" column="question_id" />
+        <result property="content" column="content" />
+        <result property="authorId" column="author_id" />
+        <result property="authorType" column="author_type" />
+        <result property="createTime" column="create_time" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, question_id, content, author_id, author_type, create_time
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.AnswerDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO answer (
+            question_id, content, author_id, author_type, create_time
+        ) VALUES (
+            #{questionId}, #{content}, #{authorId}, #{authorType}, now()
+        )
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.AnswerDO">
+        UPDATE answer
+        <set>
+            <if test="questionId != null">question_id = #{questionId},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="authorType != null">author_type = #{authorType},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据问题ID查询 -->
+    <select id="findByQuestionId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        WHERE question_id = #{questionId}
+        ORDER BY create_time ASC
+    </select>
+    
+    <!-- 根据作者ID查询 -->
+    <select id="findByAuthorId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        WHERE author_id = #{authorId}
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 根据作者类型查询 -->
+    <select id="findByAuthorType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        WHERE author_type = #{authorType}
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 根据问题ID和作者类型查询 -->
+    <select id="findByQuestionIdAndAuthorType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        WHERE question_id = #{questionId} AND author_type = #{authorType}
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 查询所有回答 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 分页查询回答 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM answer
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 统计回答总数 -->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(1) FROM answer
+    </select>
+
+    <!-- 删除回答 -->
+    <delete id="delete">
+        DELETE FROM answer WHERE id = #{id}
+    </delete>
+    <!-- 删除回答 -->
+    <delete id="deleteByQuestion">
+        DELETE FROM answer WHERE question_id = #{questionId}
+    </delete>
+</mapper> 

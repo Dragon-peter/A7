@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.UserDO">
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="realName" column="real_name" />
+        <result property="email" column="email" />
+        <result property="phone" column="phone" />
+        <result property="role" column="role" />
+        <result property="status" column="status" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, username, password, real_name, email, phone, role, status, create_time, update_time
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.UserDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (
+            username, password, real_name, email, phone, role, status, create_time, update_time
+        ) VALUES (
+            #{username}, #{password}, #{realName},  #{email}, #{phone}, #{role}, #{status},
+            now(), now()
+        )
+    </insert>
+    
+    <insert id="batchAdd" parameterType="java.util.List">
+        INSERT INTO user (
+            username, password, real_name, email, phone, role, status, create_time, update_time
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.username}, #{item.password}, #{item.realName},
+                #{item.email}, #{item.phone}, #{item.role}, #{item.status},
+                now(), now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.UserDO">
+        UPDATE user
+        <set>
+            <if test="username != null">username = #{username},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus">
+        UPDATE user SET status = #{status}, update_time = now() WHERE id = #{id}
+    </update>
+
+    <!-- 根据用户名查询 -->
+    <select id="findByUserName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        WHERE username = #{username}
+    </select>
+    
+    <!-- 根据邮箱查询 -->
+    <select id="findByEmail" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        WHERE email = #{email}
+    </select>
+    
+    <!-- 根据手机号查询 -->
+    <select id="findByPhone" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        WHERE phone = #{phone}
+    </select>
+    
+    <!-- 根据角色查询 -->
+    <select id="findByRole" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        WHERE role = #{role}
+    </select>
+    
+    <!-- 根据状态查询 -->
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        WHERE status = #{status}
+    </select>
+
+    <!-- 查询所有用户 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+    </select>
+    
+    <!-- 分页查询用户 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 统计用户总数 -->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(1) FROM user
+    </select>
+
+    <!-- 删除用户 -->
+    <delete id="delete">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM user WHERE id = #{id}
+    </select>
+</mapper>

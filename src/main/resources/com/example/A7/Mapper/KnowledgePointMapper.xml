@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.KnowledgePointMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.KnowledgePointDO">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="courseId" column="course_id" />
+        <result property="chapterId" column="chapter_id" />
+        <result property="description" column="description" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, name, course_id, chapter_id, description
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.KnowledgePointDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO knowledge_point (
+            name, course_id, chapter_id, description
+        ) VALUES (
+            #{name}, #{courseId}, #{chapterId}, #{description}
+        )
+    </insert>
+    
+    <insert id="batchAdd" parameterType="java.util.List">
+        INSERT INTO knowledge_point (
+            name, course_id, chapter_id, description
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.name}, #{item.courseId}, #{item.chapterId}, #{item.description}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.KnowledgePointDO">
+        UPDATE knowledge_point
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="chapterId != null">chapter_id = #{chapterId},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM knowledge_point
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据课程ID查询 -->
+    <select id="findByCourseId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM knowledge_point
+        WHERE course_id = #{courseId}
+    </select>
+    
+    <!-- 根据章节ID查询 -->
+    <select id="findByChapterId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM knowledge_point
+        WHERE chapter_id = #{chapterId}
+    </select>
+    
+    <!-- 根据名称查询 -->
+    <select id="findByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM knowledge_point
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+    </select>
+
+    <!-- 查询所有知识点 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM knowledge_point
+    </select>
+
+    <!-- 删除知识点 -->
+    <delete id="delete">
+        DELETE FROM knowledge_point WHERE id = #{id}
+    </delete>
+</mapper> 

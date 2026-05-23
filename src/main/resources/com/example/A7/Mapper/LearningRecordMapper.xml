@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.LearningRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.LearningRecordDO">
+        <id property="id" column="id" />
+        <result property="studentId" column="student_id" />
+        <result property="resourceId" column="resource_id" />
+        <result property="progress" column="progress" />
+        <result property="duration" column="duration" />
+        <result property="lastPosition" column="last_position" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+        <result property="courseId" column="course_id" />
+        <result property="status" column="status" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, student_id, resource_id,course_id,status, progress, duration, last_position, create_time, update_time
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.LearningRecordDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO learning_record (
+            student_id, resource_id, course_id,status,progress, duration, last_position, create_time, update_time
+        ) VALUES (
+            #{studentId}, #{resourceId}, #{courseId},#{status},#{progress}, #{duration}, #{lastPosition}, now(), now()
+        )
+    </insert>
+<select id="findByStudentIdAndResourceIds" resultType="com.example.A7.DO.LearningRecordDO">
+    SELECT * FROM learning_record
+    WHERE student_id = #{studentId}
+      AND resource_id IN
+      <foreach collection="resourceIds" item="id" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+</select>
+    <update id="update" parameterType="com.example.A7.DO.LearningRecordDO">
+        UPDATE learning_record
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="resourceId != null">resource_id = #{resourceId},</if>
+            <if test="progress != null">progress = #{progress},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="lastPosition != null">last_position = #{lastPosition},</if>
+            <if test="duration != null">course_id = #{courseId},</if>
+            <if test="lastPosition != null">status= #{status},</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateProgress">
+        UPDATE learning_record 
+        SET progress = #{progress}, last_position = #{lastPosition}, update_time = now()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateDuration">
+        UPDATE learning_record 
+        SET duration = #{duration}, update_time = now() 
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据学生ID查询 -->
+    <select id="findByStudentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        WHERE student_id = #{studentId}
+        ORDER BY update_time DESC
+    </select>
+    
+    <!-- 根据资源ID查询 -->
+    <select id="findByResourceId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        WHERE resource_id = #{resourceId}
+        ORDER BY update_time DESC
+    </select>
+    
+    <!-- 根据学生ID和资源ID查询 -->
+    <select id="findByStudentIdAndResourceId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        WHERE student_id = #{studentId} AND resource_id = #{resourceId}
+    </select>
+
+    <!-- 查询所有学习记录 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        ORDER BY update_time DESC
+    </select>
+    
+    <!-- 分页查询学习记录 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM learning_record
+        ORDER BY update_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 删除学习记录 -->
+    <delete id="delete">
+        DELETE FROM learning_record WHERE id = #{id}
+    </delete>
+
+    <!-- 统计学习该资源的学生数 -->
+<select id="countLearnersByResourceId" resultType="int">
+    SELECT COUNT(DISTINCT student_id) FROM learning_record WHERE resource_id = #{resourceId}
+</select>
+
+<!-- 统计完成该资源学习的学生数（status字段，1为已完成） -->
+<select id="countCompletedByResourceId" resultType="int">
+    SELECT COUNT(DISTINCT student_id) FROM learning_record WHERE resource_id = #{resourceId} AND status = 1
+</select>
+
+<!-- 计算该资源的平均学习进度（progress字段0~100） -->
+<select id="getAverageProgressByResourceId" resultType="double">
+    SELECT IFNULL(AVG(progress), 0) FROM learning_record WHERE resource_id = #{resourceId}
+</select>
+
+<!-- 计算该资源的平均学习时长（duration字段单位为分钟） -->
+<select id="getAverageDurationByResourceId" resultType="double">
+    SELECT IFNULL(AVG(duration), 0) FROM learning_record WHERE resource_id = #{resourceId}
+</select>
+<!-- 统计学习该课程的学生数 -->
+<select id="countLearnersByCourseId" resultType="int">
+    SELECT COUNT(DISTINCT student_id) FROM learning_record WHERE course_id = #{courseId}
+</select>
+
+<!-- 统计完成该课程学习的学生数（status字段1为已完成） -->
+<select id="countCompletedStudentsByCourseId" resultType="int">
+    SELECT COUNT(DISTINCT student_id) FROM learning_record WHERE course_id = #{courseId} AND status = 1
+</select>
+
+<!-- 计算该课程的平均学习进度（progress字段0~100） -->
+<select id="getAverageProgressByCourseId" resultType="double">
+    SELECT IFNULL(AVG(progress), 0) FROM learning_record WHERE course_id = #{courseId}
+</select>
+</mapper> 

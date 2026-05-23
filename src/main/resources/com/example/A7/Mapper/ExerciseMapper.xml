@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.ExerciseMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.ExerciseDO">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="type" column="type" />
+        <result property="difficulty" column="difficulty" />
+        <result property="chapterId" column="chapter_id" />
+        <result property="knowledgePointId" column="knowledge_point_id" />
+        <result property="answer" column="answer" />
+        <result property="explanation" column="explanation" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, title, content, type, difficulty, chapter_id, knowledge_point_id, answer, explanation
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.ExerciseDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exercise (
+            title, content, type, difficulty, chapter_id, knowledge_point_id, answer, explanation
+        ) VALUES (
+            #{title}, #{content}, #{type}, #{difficulty}, #{chapterId}, #{knowledgePointId}, #{answer}, #{explanation}
+        )
+    </insert>
+    
+    <insert id="batchAdd" parameterType="java.util.List">
+        INSERT INTO exercise (
+            title, content, type, difficulty, chapter_id, knowledge_point_id, answer, explanation
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.title}, #{item.content}, #{item.type}, #{item.difficulty}, 
+                #{item.chapterId}, #{item.knowledgePointId}, #{item.answer}, #{item.explanation}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.ExerciseDO">
+        UPDATE exercise
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="difficulty != null">difficulty = #{difficulty},</if>
+            <if test="chapterId != null">chapter_id = #{chapterId},</if>
+            <if test="knowledgePointId != null">knowledge_point_id = #{knowledgePointId},</if>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="explanation != null">explanation = #{explanation},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据章节ID查询 -->
+    <select id="findByChapterId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE chapter_id = #{chapterId}
+    </select>
+    
+    <!-- 根据知识点ID查询 -->
+    <select id="findByKnowledgePointId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE knowledge_point_id = #{knowledgePointId}
+    </select>
+    
+    <!-- 根据类型查询 -->
+    <select id="findByType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE type = #{type}
+    </select>
+    
+    <!-- 根据难度查询 -->
+    <select id="findByDifficulty" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE difficulty = #{difficulty}
+    </select>
+    
+    <!-- 根据标题查询 -->
+    <select id="findByTitle" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        WHERE title LIKE CONCAT('%', #{title}, '%')
+    </select>
+
+    <!-- 查询所有习题 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+    </select>
+    
+    <!-- 分页查询习题 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM exercise
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 统计习题总数 -->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(1) FROM exercise
+    </select>
+
+    <!-- 删除习题 -->
+    <delete id="delete">
+        DELETE FROM exercise WHERE id = #{id}
+    </delete>
+</mapper> 

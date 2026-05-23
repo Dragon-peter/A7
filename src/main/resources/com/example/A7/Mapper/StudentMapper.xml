@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.StudentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.StudentDO">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="classId" column="class_id" />
+        <result property="major" column="major" />
+        <result property="admissionYear" column="admission_year" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, user_id, class_id, major, admission_year, create_time, update_time
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.StudentDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student (
+            user_id, class_id, major, admission_year, create_time, update_time
+        ) VALUES (
+            #{userId}, #{classId}, #{major}, #{admissionYear}, now(), now()
+        )
+    </insert>
+    
+    <insert id="batchAdd" parameterType="java.util.List">
+        INSERT INTO student (
+            user_id, class_id, major, admission_year, create_time, update_time
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.userId}, #{item.classId},
+                #{item.major}, #{item.admissionYear}, now(), now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.StudentDO">
+        UPDATE student
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="admissionYear != null">admission_year = #{admissionYear},</if>
+            update_time = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询 -->
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据班级ID查询 -->
+    <select id="findByClassId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        WHERE class_id = #{classId}
+    </select>
+
+    <!-- 根据专业查询 -->
+    <select id="findByMajor" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        WHERE major = #{major}
+    </select>
+
+    <!-- 根据入学年份查询 -->
+    <select id="findByAdmissionYear" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        WHERE admission_year = #{admissionYear}
+    </select>
+
+    <!-- 查询所有学生 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+    </select>
+    
+    <!-- 分页查询学生 -->
+    <select id="findByPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <!-- 统计学生总数 -->
+    <select id="countTotal" resultType="int">
+        SELECT COUNT(1) FROM student
+    </select>
+
+    <!-- 删除学生 -->
+    <delete id="delete">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+
+    <!-- 根据姓名查询，需要关联用户表 -->
+    <select id="findByRealName" resultMap="BaseResultMap">
+        SELECT s.* FROM student s
+        JOIN user u ON s.user_id = u.id
+        WHERE u.real_name = #{realName}
+    </select>
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.A7.Mapper.StudentCourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.A7.DO.StudentCourseDO">
+        <id property="id" column="id" />
+        <result property="studentId" column="student_id" />
+        <result property="courseId" column="course_id" />
+        <result property="progress" column="progress" />
+        <result property="joinTime" column="join_time" />
+        <result property="status" column="status" />
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, student_id, course_id, progress, join_time, status
+    </sql>
+
+    <insert id="add" parameterType="com.example.A7.DO.StudentCourseDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student_course (
+            student_id, course_id, progress, join_time, status
+        ) VALUES (
+            #{studentId}, #{courseId}, #{progress}, now(), #{status}
+        )
+    </insert>
+    <!-- 统计选课人数 -->
+<select id="countStudentByCourseId" resultType="int">
+    SELECT COUNT(*) FROM student_course WHERE course_id = #{courseId}
+</select>
+
+<!-- 统计完成课程人数（假设有status字段，1为已完成） -->
+<select id="countCompletedByCourseId" resultType="int">
+    SELECT COUNT(*) FROM student_course WHERE course_id = #{courseId} AND status = 1
+</select>
+    <insert id="batchAdd" parameterType="java.util.List">
+        INSERT INTO student_course (
+            student_id, course_id, progress, join_time, status
+        ) VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.studentId}, #{item.courseId}, #{item.progress}, 
+                now(), #{item.status}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.example.A7.DO.StudentCourseDO">
+        UPDATE student_course
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="progress != null">progress = #{progress},</if>
+            <if test="joinTime != null">join_time = #{joinTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateProgress">
+        UPDATE student_course SET progress = #{progress} WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus">
+        UPDATE student_course SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student_course
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据学生ID查询 -->
+    <select id="findByStudentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student_course
+        WHERE student_id = #{studentId}
+    </select>
+    
+    <!-- 根据课程ID查询 -->
+    <select id="findByCourseId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student_course
+        WHERE course_id = #{courseId}
+    </select>
+    
+    <!-- 根据学生ID和课程ID查询 -->
+    <select id="findByStudentIdAndCourseId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student_course
+        WHERE student_id = #{studentId} AND course_id = #{courseId}
+    </select>
+    
+    <!-- 根据状态查询 -->
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM student_course
+        WHERE status = #{status}
+    </select>
+
+    <!-- 删除学生课程关系 -->
+    <delete id="delete">
+        DELETE FROM student_course WHERE id = #{id}
+    </delete>
+    <delete id="deleteByCourseId">
+        DELETE FROM student_course WHERE course_id = #{courseId}
+    </delete>
+</mapper> 
